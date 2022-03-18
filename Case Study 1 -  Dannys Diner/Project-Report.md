@@ -33,7 +33,7 @@ ORDER BY Number_of_Days_Visited DESC;
 ````
 #### Process
 - The **COUNT** function is used to get the number of days a customer visited.
-- The attribute ```order_date`` is used to get the visitation information. Using **DISTINCT** function helps to aggregate multiple orders placed on a single visit.
+- The attribute ``order_date`` is used to get the visitation information. Using **DISTINCT** function helps to aggregate multiple orders placed on a single visit.
 #### Result
 ![image](https://user-images.githubusercontent.com/54994083/158617201-46696335-af04-43b3-8906-77ff504c4c03.png)
 - Customer has visited the most number of times i.e 6
