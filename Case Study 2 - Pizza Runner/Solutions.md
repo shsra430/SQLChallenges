@@ -402,8 +402,7 @@ ORDER BY Frequency DESC;
 - *Cheese seems to be the ingredient that is most commonly excluded and it is to be noted that it is one of the ingredients that is common to both pizza types. It may be a good idea for the business to include a **lactose-free** option on the menu which will make the process of ordering more straightforward.*
 ##### 4. Generate an alphabetically ordered comma separated ingredient list for each pizza order from the customer_orders table and add a 2x in front of any relevant ingredients. For example: "Meat Lovers: 2xBacon, Beef, ... , Salami"
 
-<img width="364" alt="image" src="https://user-images.githubusercontent.com/54994083/179628880-87184398-a2dd-4f98-bfe7-59f0f2c42554.png">
-
+<img width="368" alt="image" src="https://user-images.githubusercontent.com/54994083/179629277-68a7da09-ffe0-453f-86e9-a33ce316c0d5.png">
 
 ##### Process
 To answer this question, I had to create several temporary tables. I am going to try and cover them all here. However, I also strongly feel like there is definitely a simpler way to solve it. I will be happy to learn it. Feedbacks are welcome!
@@ -511,14 +510,15 @@ GROUP BY order_id, pizza_id;
 ````
 Here is the final query which helped to achieve the final output.
 Re-attaching the query response for a quicker reference:
-<img width="364" alt="image" src="https://user-images.githubusercontent.com/54994083/179628880-87184398-a2dd-4f98-bfe7-59f0f2c42554.png">
+<img width="368" alt="image" src="https://user-images.githubusercontent.com/54994083/179629277-68a7da09-ffe0-453f-86e9-a33ce316c0d5.png">
 
-I would like to add that, finally there is one thing that I could not achieve in this solution. 
-In the final result, the names of excluded ingredients have not been removed from the comma separated list. They have only been replaced with a space i.e. ''.
+I would like to add that, finally there are a couple of things that need to be worked on in this solution, which I have come to realise later. 
+1. In the final result, the names of excluded ingredients have not been removed from the comma separated list. They have only been replaced with a space i.e. ''.
+2. There is a case where an ingredient is mentioned in the extras that is not part of the pizza ingredient list. This needs to be exclusively added to the main ingredient list. 
 
 ````sql
 SELECT 
-   order_id,pizza_id,
+   query5.order_id, pizza_name,
     CASE
         WHEN
             FIND_IN_SET(extras_name, all_ingredients) >= 1
@@ -536,5 +536,6 @@ FROM
                 ELSE ingredients
             END AS all_ingredients
     FROM
-        order_ingredient_csv) query5;
+        order_ingredient_csv) query5 left join pizza_names
+        on query5.pizza_id= pizza_names.pizza_id;
 ````
