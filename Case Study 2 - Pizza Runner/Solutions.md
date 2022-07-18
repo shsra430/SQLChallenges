@@ -54,7 +54,7 @@ With this data cleaning process is completed & now we can move on with answering
 The first set of questions are about **Pizza Metrics**
 ##### 1. How many pizzas were ordered ?
 There are a total of 14 pizza orders.
-##### Process 
+##### :white_check_mark:Process 
 ````sql
 SELECT 
     COUNT(*) AS Total_Pizza_Orders
@@ -64,7 +64,7 @@ FROM
 - For this question, the table 'customer_orders' will be required to count the number of orders. The **SQL COUNT()** Statement will be used along with * to count all rows in the customer_orders table.
 ##### 2. How many unique customer orders were made ?
 A total of 5 unique customers have placed various orders.
-#### Process
+#### :white_check_mark:Process
 ````sql
 SELECT 
     COUNT(DISTINCT order_id) AS Unique_Orders
@@ -83,7 +83,7 @@ Runner Successful_Orders
 2      3
 3      1
 ````
-##### Process
+##### :white_check_mark:Process
 ````SQL
 SELECT 
 	runner_id as Runner,
@@ -103,7 +103,7 @@ PizzaType   DeliveryCount
 Meatlovers    9
 Vegetarian    3
 ````
-##### Process
+##### :white_check_mark:Process
 ````sql
 SELECT 
     pizza_name AS PizzaType,
@@ -124,7 +124,7 @@ and the aggregation is done by PizzaType using GROUP BY.
 ##### 5. How many Vegetarian and MeatLovers were ordered by each customer ?
 <img width="214" alt="image" src="https://user-images.githubusercontent.com/54994083/179524647-5c2d81b9-e2ac-4f18-9d13-b1dc543659e8.png">
 
-##### Process
+##### :white_check_mark:Process
 ````sql
 SELECT 
     customer_id AS Customer,
@@ -149,7 +149,7 @@ GROUP BY customer_id;
 order_id    pizzacount
 4             3
 ````
-##### Process
+##### :white_check_mark:Process
 ````sql
 SELECT 
     tempcustomer_orders.order_id, COUNT(pizza_id) AS pizzacount
@@ -169,7 +169,7 @@ LIMIT 1;
 ##### 7. For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
 <img width="203" alt="image" src="https://user-images.githubusercontent.com/54994083/179529485-c54ba064-3fe4-43b7-8408-83ecbb820b0c.png">
 
-##### Process
+##### :white_check_mark:Process
 ````sql
 SELECT 
     customer_id,
@@ -198,7 +198,7 @@ applied on customer_id.
 Countof
 1
 ````
-##### Process
+##### :white_check_mark:Process
 ````sql
 SELECT 
     SUM(CASE
@@ -216,7 +216,7 @@ WHERE
 ##### 9. What was the total volume of pizzas ordered for each hour of the day ?
 <img width="105" alt="image" src="https://user-images.githubusercontent.com/54994083/179532547-d366be09-924d-42c2-b60e-3b987fb81316.png">
 
-##### Process
+##### :white_check_mark:Process
 ````sql
 SELECT 
     HOUR(orderTime) AS Dayhour, COUNT(order_id) AS Order_Volume
@@ -231,7 +231,7 @@ COUNT aggregation is used on 'order_id'.
 ##### 10. What was the volume of orders for each day of the week ?
 <img width="119" alt="image" src="https://user-images.githubusercontent.com/54994083/179533609-ab85765f-2c80-48bd-9114-03c6a4fe68a0.png">
 
-##### Process
+##### :white_check_mark:Process
 ````sql
 SELECT 
     DAYNAME(orderDate) AS OrderDay,
@@ -250,7 +250,7 @@ The next set of business questions are about **runner and customer experience**.
 ##### 2. What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
 <img width="115" alt="image" src="https://user-images.githubusercontent.com/54994083/179537145-a8e20430-6c74-4f04-89c9-b5b4018a194e.png">
 
-##### Process
+##### :white_check_mark:Process
 ````sql
 with pickuptimes as (
 select runner_id, TIMESTAMPDIFF(MINUTE,tempcustomer_orders.order_time,pickup_time) as timeDifference
@@ -265,7 +265,7 @@ group by runner_id;
 ##### 3. Is there any relationship between the number of pizzas and how long the order takes to prepare?
 <img width="195" alt="image" src="https://user-images.githubusercontent.com/54994083/179538383-7b47a74b-8f3a-4ffa-856f-13181126af03.png">
 
-##### Process
+##### :white_check_mark:Process
 ````sql
 with timeinfo as(
 select tempcustomer_orders.order_id, count(pizza_id) as number_of_pizzas, order_time as lastordertime,
@@ -286,7 +286,7 @@ to get the average time to prepare value. This ofcourse ignores any other causes
 ##### 4. What was the average distance travelled for each customer ?
 <img width="148" alt="image" src="https://user-images.githubusercontent.com/54994083/179541820-bd2ade55-c970-4c8c-91f3-41f8bae55d78.png">
 
-##### Process
+##### :white_check_mark:Process
 ````sql
 SELECT 
     customer_id AS Customer,
@@ -321,7 +321,7 @@ FROM
 ##### 6. What was the average speed for each runner for each delivery and do you notice any trend for these values?
 <img width="472" alt="image" src="https://user-images.githubusercontent.com/54994083/179550092-572e7692-11b7-4367-ae45-58f3bcd2811b.png">
 
-##### Process
+##### :white_check_mark:Process
 ````sql
 SELECT 
     *, ROUND(distance/ (duration/60), 2) AS order_speed_km_per_hour
@@ -333,7 +333,7 @@ order by runner_id,order_speed_km_per_hour;
 ##### 7. What is the successful delivery percentage for each runner?
 <img width="307" alt="image" src="https://user-images.githubusercontent.com/54994083/179551928-c16c83d7-e363-49e9-ab58-9a284bd1b11f.png">
 
-##### Process
+##### :white_check_mark:Process
 ````sql
 SELECT 
     runner_id,
@@ -355,7 +355,7 @@ The following section contains queries to solve business questions on **Ingredie
 ##### 1. What are the standard ingredients for each pizza ?  
 <img width="316" alt="image" src="https://user-images.githubusercontent.com/54994083/179606280-aad6ebe5-0e65-4630-b8e2-bed1efd229ae.png">
 
-##### Process
+##### :white_check_mark:Process
 ````sql
 with cte1 as 
 (select query1.pizza_id,topping_name from (SELECT
