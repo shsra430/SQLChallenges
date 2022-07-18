@@ -1,5 +1,5 @@
-# Pizza Runner Solution Queries
-- Built using MySQL.
+# :bike::pizza:Pizza Runner Solution Queries:pizza::bike:
+:bulb: Built using MySQL
 
 #### Data Cleaning Steps Involved
 ##### Table: customer_orders 
@@ -53,7 +53,7 @@ update temprunner_orders set duration = TRIM(duration);
 With this data cleaning process is completed & now we can move on with answering the key business questions with queries.
 The first set of questions are about **Pizza Metrics**
 ##### 1. How many pizzas were ordered ?
-There are a total of 14 pizza orders.
+There are a total of 14 :pizza: orders.
 ##### :white_check_mark:Process 
 ````sql
 SELECT 
