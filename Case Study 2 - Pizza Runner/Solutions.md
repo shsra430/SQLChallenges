@@ -350,5 +350,184 @@ FROM
 GROUP BY runner_id;
 ````
 - *Runner 1 has been the most successful in terms of delivery percentage as most of his orders convert into deliveries. Whereas, runner 3 has the lowest successful delivery precentage with only 1 out of 2 of his orders getting delivered.*
-##### 8. 
+
+The following section contains queries to solve business questions on **Ingredient Optimization.**
+##### 1. What are the standard ingredients for each pizza ?  
+<img width="316" alt="image" src="https://user-images.githubusercontent.com/54994083/179606280-aad6ebe5-0e65-4630-b8e2-bed1efd229ae.png">
+
 ##### Process
+````sql
+with cte1 as 
+(select query1.pizza_id,topping_name from (SELECT
+  pizza_id,
+  SUBSTRING_INDEX(SUBSTRING_INDEX(toppings, ',', numbers.n), ',', -1) toppings
+FROM
+  (SELECT 1 n UNION ALL SELECT 2 
+   UNION ALL SELECT 3 UNION ALL SELECT 4 union all 
+   select 5 union all select 6
+   union all select 7 union all select 8 union all select 9 
+   union all select 10 union all select 11 union all select 12) numbers INNER JOIN pizza_recipes
+  ON CHAR_LENGTH(toppings)-CHAR_LENGTH(REPLACE(toppings, ',', ''))>=numbers.n-1)query1
+  left join pizza_toppings on query1.toppings= pizza_toppings.topping_id)
+  select pizza_names.pizza_name as Pizza, group_concat(distinct topping_name) as `Standard Toppings` from cte1
+left join pizza_recipes
+on cte1.pizza_id = pizza_recipes.pizza_id
+left join pizza_names on cte1.pizza_id= pizza_names.pizza_id
+group by cte1.pizza_id;
+````
+- The solution query for makes use of CTE as well as a subquery. The innermost query is used to convert comma separated ingredient list of toppings to long form. 
+- This is then joined with pizza_toppings to get the names of the toppings. Using the CTE, the final query joins with pizza_recipes & pizza_names to get the pizza name.
+- The GROUP_CONCAT() is used to re-group toppings into a comma separated list for each of the two pizza types. 
+-  *Cheese & Muschroom are two ingredients that are common to both Meat & Vegetarian pizzas at Danny's House.*
+#####  2. What was the most common exclusion ?
+<img width="167" alt="image" src="https://user-images.githubusercontent.com/54994083/179616299-53262146-206c-410d-84e8-30320593fa24.png">
+
+##### Process
+````sql
+SELECT 
+    topping_name AS Ingredient,
+    Frequency AS Number_of_times_excluded
+FROM
+    (SELECT 
+        exclusions, COUNT(*) AS Frequency
+    FROM
+        tempcustomer_orders_exclusions
+    GROUP BY exclusions) query2
+        LEFT JOIN
+    pizza_toppings ON query2.exclusions = pizza_toppings.topping_id
+WHERE
+    topping_name <> ''
+ORDER BY Frequency DESC;
+````
+- *Cheese seems to be the ingredient that is most commonly excluded and it is to be noted that it is one of the ingredients that is common to both pizza types. It may be a good idea for the business to include a **lactose-free** option on the menu which will make the process of ordering more straightforward.*
+##### 4. Generate an alphabetically ordered comma separated ingredient list for each pizza order from the customer_orders table and add a 2x in front of any relevant ingredients. For example: "Meat Lovers: 2xBacon, Beef, ... , Salami"
+<img width="501" alt="image" src="https://user-images.githubusercontent.com/54994083/179627011-cd477765-19dd-434e-97ea-6fbce10aae95.png">
+
+##### Process
+To answer this question, I had to create several temporary tables. I am going to try and cover them all here. However, I also strongly feel like there is definitely a simpler way to solve it. I will be happy to learn it. Feedbacks are welcome!
+````sql
+create temporary table pizza_recipes_extended
+SELECT 
+    pizza_id,
+    SUBSTRING_INDEX(SUBSTRING_INDEX(toppings, ',', numbers.n),
+            ',',
+            - 1) toppings
+FROM
+    (SELECT 1 n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8) numbers
+        INNER JOIN
+    pizza_recipes ON CHAR_LENGTH(toppings) - CHAR_LENGTH(REPLACE(toppings, ',', '')) >= numbers.n - 1
+ORDER BY pizza_id;
+````
+````sql
+create temporary table pizza_recipes_toppingname
+SELECT 
+    pizza_id, topping_name
+FROM
+    pizza_recipes_extended
+        LEFT JOIN
+    pizza_toppings ON pizza_recipes_extended.toppings = pizza_toppings.topping_id;
+
+````
+````sql
+create temporary table tempcustomer_orders_extended_exclusions_and_extras
+select order_id,customer_id,pizza_id,exclusions,order_time,orderDate,orderTime, SUBSTRING_INDEX(SUBSTRING_INDEX(extras, ',', numbers.n), ',', -1) extras
+FROM
+(SELECT 1 n UNION ALL SELECT 2 ) numbers INNER JOIN tempcustomer_orders_extended_exclusions
+ON CHAR_LENGTH(extras)-CHAR_LENGTH(REPLACE(extras, ',', ''))>=numbers.n-1;
+````
+````sql
+create temporary table final_customer_orders_table_one
+select 
+query3.pizza_id,
+query3.order_id,
+query3.customer_id,
+query3.exclusions,
+query3.order_time,
+query3.orderDate,
+query3.orderTime,
+query3.extras,
+query3.topping_name,
+pizza_toppings.topping_name as exclusions_name
+from (
+select 
+tempcustomer_orders_extended_exclusions_and_extras.pizza_id,
+tempcustomer_orders_extended_exclusions_and_extras.order_id,
+tempcustomer_orders_extended_exclusions_and_extras.customer_id,
+tempcustomer_orders_extended_exclusions_and_extras.exclusions,
+tempcustomer_orders_extended_exclusions_and_extras.order_time,
+tempcustomer_orders_extended_exclusions_and_extras.orderDate,
+tempcustomer_orders_extended_exclusions_and_extras.orderTime,
+tempcustomer_orders_extended_exclusions_and_extras.extras,
+pizza_recipes_toppingname.topping_name
+from tempcustomer_orders_extended_exclusions_and_extras left join pizza_recipes_toppingname
+on tempcustomer_orders_extended_exclusions_and_extras.pizza_id = pizza_recipes_toppingname.pizza_id
+)query3
+left join pizza_toppings on query3.exclusions = pizza_toppings.topping_id ;
+````
+````sql
+create temporary table final_customerorders
+select 
+query4.pizza_id,
+query4.order_id,
+query4.customer_id,
+query4.exclusions,
+query4.order_time,
+query4.orderDate,
+query4.orderTime,
+query4.extras,
+query4.topping_name,
+query4.exclusions_name,
+pizza_toppings.topping_name as extras_name
+from (
+select final_customer_orders_table_one.pizza_id,
+final_customer_orders_table_one.order_id,
+final_customer_orders_table_one.customer_id,
+final_customer_orders_table_one.exclusions,
+final_customer_orders_table_one.order_time,
+final_customer_orders_table_one.orderDate,
+final_customer_orders_table_one.orderTime,
+final_customer_orders_table_one.extras,
+final_customer_orders_table_one.exclusions_name,
+pizza_recipes_toppingname.topping_name
+from final_customer_orders_table_one left join pizza_recipes_toppingname
+on final_customer_orders_table_one.pizza_id = pizza_recipes_toppingname.pizza_id
+)query4
+left join pizza_toppings on query4.extras = pizza_toppings.topping_id ;
+
+````
+````sql
+create temporary table order_ingredient_csv
+SELECT 
+    order_id,
+    exclusions_name,
+    extras_name,
+    GROUP_CONCAT(DISTINCT topping_name) AS ingredients
+FROM
+    final_customerorders
+GROUP BY order_id;
+````
+Here is the final query which helped to achieve the output shown above.
+I would like to that, finally, however, there is one thing that I could not achieve. In the final result, the names of excluded ingredients have not been removed from the comma separated list. They have only been replaced with a space i.e. ''.
+
+````sql
+SELECT 
+    order_id,
+    CASE
+        WHEN
+            FIND_IN_SET(extras_name, all_ingredients) >= 1
+        THEN
+            REPLACE(all_ingredients,
+                extras_name,
+                CONCAT('2x', extras_name))
+        ELSE all_ingredients
+    END AS Ingredients_Final
+FROM
+    (SELECT 
+        *,
+            CASE
+                WHEN FIND_IN_SET(exclusions_name, ingredients) > 1 THEN REPLACE(ingredients, exclusions_name, ' ')
+                ELSE ingredients
+            END AS all_ingredients
+    FROM
+        order_ingredient_csv) query5;
+````
