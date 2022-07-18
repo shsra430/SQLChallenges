@@ -401,7 +401,9 @@ ORDER BY Frequency DESC;
 ````
 - *Cheese seems to be the ingredient that is most commonly excluded and it is to be noted that it is one of the ingredients that is common to both pizza types. It may be a good idea for the business to include a **lactose-free** option on the menu which will make the process of ordering more straightforward.*
 ##### 4. Generate an alphabetically ordered comma separated ingredient list for each pizza order from the customer_orders table and add a 2x in front of any relevant ingredients. For example: "Meat Lovers: 2xBacon, Beef, ... , Salami"
-<img width="501" alt="image" src="https://user-images.githubusercontent.com/54994083/179627011-cd477765-19dd-434e-97ea-6fbce10aae95.png">
+
+<img width="364" alt="image" src="https://user-images.githubusercontent.com/54994083/179628880-87184398-a2dd-4f98-bfe7-59f0f2c42554.png">
+
 
 ##### Process
 To answer this question, I had to create several temporary tables. I am going to try and cover them all here. However, I also strongly feel like there is definitely a simpler way to solve it. I will be happy to learn it. Feedbacks are welcome!
@@ -499,19 +501,24 @@ left join pizza_toppings on query4.extras = pizza_toppings.topping_id ;
 create temporary table order_ingredient_csv
 SELECT 
     order_id,
+    pizza_id,
     exclusions_name,
     extras_name,
     GROUP_CONCAT(DISTINCT topping_name) AS ingredients
 FROM
     final_customerorders
-GROUP BY order_id;
+GROUP BY order_id, pizza_id;
 ````
-Here is the final query which helped to achieve the output shown above.
-I would like to that, finally, however, there is one thing that I could not achieve. In the final result, the names of excluded ingredients have not been removed from the comma separated list. They have only been replaced with a space i.e. ''.
+Here is the final query which helped to achieve the final output.
+Re-attaching the query response for a quicker reference:
+<img width="364" alt="image" src="https://user-images.githubusercontent.com/54994083/179628880-87184398-a2dd-4f98-bfe7-59f0f2c42554.png">
+
+I would like to add that, finally there is one thing that I could not achieve in this solution. 
+In the final result, the names of excluded ingredients have not been removed from the comma separated list. They have only been replaced with a space i.e. ''.
 
 ````sql
 SELECT 
-    order_id,
+   order_id,pizza_id,
     CASE
         WHEN
             FIND_IN_SET(extras_name, all_ingredients) >= 1
@@ -525,7 +532,7 @@ FROM
     (SELECT 
         *,
             CASE
-                WHEN FIND_IN_SET(exclusions_name, ingredients) > 1 THEN REPLACE(ingredients, exclusions_name, ' ')
+                WHEN FIND_IN_SET(exclusions_name, ingredients) >= 1 THEN REPLACE(ingredients, exclusions_name, '')
                 ELSE ingredients
             END AS all_ingredients
     FROM
