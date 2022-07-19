@@ -8,7 +8,7 @@
 - key Business Questions
 - Solutions
   - [Customer Journey](#tv-customer-journey)
-  - [Data Analysis](https://github.com/shsra430/SQLChallenges/blob/main/Case%20Study%203%20-%20Foodie%20Fi/Solutions.md)
+  - [Data Analysis](https://github.com/shsra430/SQLChallenges/blob/main/Case%20Study%203%20-%20Foodie%20Fi/Solutions.md#bar_chart-data-analysis)
   - Challenge Extension Question
  
 ***
