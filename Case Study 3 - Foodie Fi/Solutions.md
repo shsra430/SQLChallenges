@@ -74,8 +74,51 @@ FROM
 - Since we only need to count those records that correspond to churn, `COUNT CASE` has been used along with distinct to count those records where plan_id =4.
 - This is then divided by total number of customers. The `ROUND()` is used to round of the decimal value to 2 places. 
 #### 5.How many customers have churned straight after their initial free trial - what percentage is this rounded to the nearest whole number? 
+<img width="314" alt="image" src="https://user-images.githubusercontent.com/54994083/179843027-64b8c61e-d836-4883-acdf-593613716e56.png">
+
+- *Out of the 30.7% customers that have churned, 9% of them have cancelled immediately after their trial period. *
 #### :white_check_mark: Process
+````sql
+select count(distinct customer_id) as Total,
+select count(distinct customer_id) as Total,
+count(distinct case when plan_id=4 and ranks_assigned=2 then customer_id end) as count_of_immediatelychurned_customers,
+concat(round((count(distinct case when plan_id=4 and ranks_assigned=2 then customer_id end)/count(distinct customer_id))*100,0),"%") as percentage_of_immediatelychurned_customers
+from 
+(select *,
+rank() over(partition by customer_id order by start_date asc) as ranks_assigned
+from subscriptions)query1;
+````
+- To get this data point, we need to group records by customer & rank them in ascending order start_date.
+- From this ranked dataset, we can extract all records where plan id corresponds to churn action & has the rank 2 which means they canceled just after trial period.
+- To rank the records, the window function `RANK()` is used partitioned by customer_id field. 
+#### 6. What is the number and percentage of customer plans after their initial free trial?
+<img width="184" alt="image" src="https://user-images.githubusercontent.com/54994083/179848469-c0d52195-d3b2-487a-a15b-7750357eedad.png">
+
+- * *
 #### :white_check_mark: Process
+
+````sql
+with rankedsubscriptions as(select *,
+rank() over(partition by customer_id order by start_date asc) as ranks_assigned
+from subscriptions)
+SELECT 
+    p.plan_name AS Plan,
+    COUNT(DISTINCT s.customer_id) AS Customer_Count,
+    CONCAT(ROUND((COUNT(DISTINCT s.customer_id) / (SELECT 
+                            COUNT(DISTINCT customer_id)
+                        FROM
+                            subscriptions)) * 100,
+                    1),
+            '%') AS shareof_customers
+FROM
+    rankedsubscriptions s
+        LEFT JOIN
+    plans p ON s.plan_id = p.plan_id
+WHERE s.plan_id != 0 and ranks_assigned=2
+GROUP BY s.plan_id
+ORDER BY Customer_Count desc;
+````
+
 #### :white_check_mark: Process
 #### :white_check_mark: Process
 #### :white_check_mark: Process
