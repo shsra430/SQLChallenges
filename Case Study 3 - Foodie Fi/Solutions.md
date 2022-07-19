@@ -21,7 +21,7 @@ FROM
 
 - There is not particular pattern apparent in the distribution at this point. Further analysis will be required.
 - *Most trials was recorded in March followed by January, March, August & Septemeber. February has least number of trial plan subscriptions.*
-##### :white_check_mark: Process
+#### :white_check_mark: Process
 ````sql
 SELECT 
     YEAR(start_date) AS Year,
@@ -41,7 +41,7 @@ ORDER BY MONTH(start_date) ASC;
  <img width="144" alt="image" src="https://user-images.githubusercontent.com/54994083/179766392-be04dcd1-b912-4175-932d-521a6173e567.png">
 
 - *In 2021, most of the events have been **churn** followed by **pro annual** * 
-##### :white_check_mark: Process
+#### :white_check_mark: Process
 ````sql
 SELECT 
     p.plan_name, s.plan_id, COUNT(*) AS Countof_Events
@@ -56,12 +56,27 @@ ORDER BY Countof_Events DESC;
 ````
 - Since the question asks for plan name, we need to join the 'subscriptions' table with the 'plans' table. And count all the records for every plan that have a start date after 2020. 
 - `GROUP BY` is used on plan name to segment the data & the date filter is applied using a `WHERE` clause.
+#### 4.What is the customer count and percentage of customers who have churned rounded to 1 decimal place?
+<img width="127" alt="image" src="https://user-images.githubusercontent.com/54994083/179836279-7efabdce-6b58-445e-adfd-c7ca979398e1.png">
 
-
-##### :white_check_mark: Process
-##### :white_check_mark: Process
-##### :white_check_mark: Process
-##### :white_check_mark: Process
-##### :white_check_mark: Process
-##### :white_check_mark: Process
-##### :white_check_mark: Process
+- *Overall churn percentage is **30.7%**. A total of 307 customers cancelled their subscriptions in 2020 & 2021*
+#### :white_check_mark: Process
+````sql
+SELECT 
+    COUNT(DISTINCT customer_id) AS TotalCustomers,
+    ROUND(((COUNT(DISTINCT CASE
+                    WHEN plan_id = 4 THEN customer_id
+                END) / COUNT(DISTINCT customer_id)) * 100),
+            1) AS Churn_percentage
+FROM
+    subscriptions;
+````
+- Since we only need to count those records that correspond to churn, `COUNT CASE` has been used along with distinct to count those records where plan_id =4.
+- This is then divided by total number of customers. The `ROUND()` is used to round of the decimal value to 2 places. 
+#### 5.How many customers have churned straight after their initial free trial - what percentage is this rounded to the nearest whole number? 
+#### :white_check_mark: Process
+#### :white_check_mark: Process
+#### :white_check_mark: Process
+#### :white_check_mark: Process
+#### :white_check_mark: Process
+#### :white_check_mark: Process
