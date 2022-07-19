@@ -216,6 +216,7 @@ WHERE
 ##### 9. What was the total volume of pizzas ordered for each hour of the day ?
 <img width="105" alt="image" src="https://user-images.githubusercontent.com/54994083/179532547-d366be09-924d-42c2-b60e-3b987fb81316.png">
 
+- *Evenings until late night seems to be busier overall, along with an afternoon rush.*
 ##### :white_check_mark:Process
 ````sql
 SELECT 
@@ -227,10 +228,11 @@ GROUP BY Dayhour;
 - For this question, there is only one table needed: tempcustomer_orders. To get the hour information, the HOUR function is used on 'orderTime' column and 
 COUNT aggregation is used on 'order_id'. 
 - Since we need the number of orders *per hour* , GROUP BY is used on each HOUR of the orderTime.
-- *Evenings until late night seems to be busier overall, along with an afternoon rush.*
+
 ##### 10. What was the volume of orders for each day of the week ?
 <img width="119" alt="image" src="https://user-images.githubusercontent.com/54994083/179533609-ab85765f-2c80-48bd-9114-03c6a4fe68a0.png">
 
+- *Midweek & Saturday seem to be quite popular days of business.
 ##### :white_check_mark:Process
 ````sql
 SELECT 
@@ -240,16 +242,25 @@ FROM
     tempcustomer_orders
 GROUP BY OrderDay;
 ````
-- Midweek & Saturday seem to be quite popular days of business.
+***
 The next set of business questions are about **runner and customer experience**.
 ##### 1. How many runners signed up for each 1 week period ? ( i.e week starts 2021-01-01 )
 <img width="184" alt="image" src="https://user-images.githubusercontent.com/54994083/179536280-8371120c-3bca-4f54-a612-7d9ddb8ea452.png">
 
-#### Process
 - *The first week has seen the maximum number of sign ups.*
+#### Process
+````sql
+SELECT 
+    WEEK(registration_date), COUNT(runner_id)
+FROM
+    runners
+GROUP BY 1;
+````
+
 ##### 2. What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
 <img width="115" alt="image" src="https://user-images.githubusercontent.com/54994083/179537145-a8e20430-6c74-4f04-89c9-b5b4018a194e.png">
 
+- *It looks like Runner 2 has the highest avg time difference between order time & pick up time, with runner 3 being the most efficient.*
 ##### :white_check_mark:Process
 ````sql
 with pickuptimes as (
@@ -261,10 +272,11 @@ group by runner_id;
 ````
 - To answer this business question, I have created a CTE with difference between order time and pick up times in minutes for every runner.
 - This CTE is then used in a subsequent query with AVG aggregation function on time difference, with GROUP BY on runner_id to analyse the records runner-wise.
-- *It looks like Runner 2 has the highest avg time difference between order time & pick up time, with runner 3 being the most efficient.*
+- 
 ##### 3. Is there any relationship between the number of pizzas and how long the order takes to prepare?
 <img width="195" alt="image" src="https://user-images.githubusercontent.com/54994083/179538383-7b47a74b-8f3a-4ffa-856f-13181126af03.png">
 
+- *It looks like with the increase in the number of pizzas per order, the average difference between order time & pick up time also increases.*
 ##### :white_check_mark:Process
 ````sql
 with timeinfo as(
@@ -282,10 +294,11 @@ to arrive at the final solution query. The CTE is used to create a table that co
 - From the CTE, the next query is used to GROUP BY number of pizzas per order, and using AVG aggregation on TIMESTAMPDIFF between the pickup time & order time
 to get the average time to prepare value. This ofcourse ignores any other causes for delay in pick up times.
 - Finally, the records are ordered in desc of count of pizzas per order using ORDER BY with 'desc' keyword.
-- *It looks like with the increase in the number of pizzas per order, the average difference between order time & pick up time also increases.*
+
 ##### 4. What was the average distance travelled for each customer ?
 <img width="148" alt="image" src="https://user-images.githubusercontent.com/54994083/179541820-bd2ade55-c970-4c8c-91f3-41f8bae55d78.png">
 
+- *Looks like customer 105 is located the farthest from Danny's house or Pizza Runne HQ*
 ##### :white_check_mark:Process
 ````sql
 SELECT 
@@ -297,10 +310,10 @@ FROM
     temprunner_orders ON tempcustomer_orders.order_id = temprunner_orders.order_id
 GROUP BY customer_id;
 ````
-- *Looks like customer 105 is located the farthest from Danny's house or Pizza Runne HQ*
 ##### 5. What was the difference between the longest and shorted delivery times for all orders ?
 <img width="243" alt="image" src="https://user-images.githubusercontent.com/54994083/179548760-b588f4f9-36c2-41b2-8bde-cb7d41e03e81.png">
 
+- *There is a 30 minute difference between the highest and lowest delivery times.*
 ##### Process
 ````sql
 SELECT 
@@ -317,10 +330,11 @@ FROM
 ````
 - To answer this question, I have made use of a subquery. The subquery table1 contains all records in temprunner_orders where duration is not null. The main query uses table1 to get the final result. 
 - The aggregation functions MAX, MIN are used to find the highest and lowest duration values in the dataset and then arithmetic subtraction is used to find the difference between them.
-- *There is a 30 minute difference between the highest and lowest delivery times.*
+
 ##### 6. What was the average speed for each runner for each delivery and do you notice any trend for these values?
 <img width="472" alt="image" src="https://user-images.githubusercontent.com/54994083/179550092-572e7692-11b7-4367-ae45-58f3bcd2811b.png">
 
+- *It can be seen that for orders that come later in the day from late afternoon onwards, the speed of runners increase. The cause for this can be found out with further analysis of order volume, day of week etc*
 ##### :white_check_mark:Process
 ````sql
 SELECT 
@@ -329,10 +343,10 @@ FROM
     temprunner_orders
 order by runner_id,order_speed_km_per_hour;
 ````
-- *It can be seen that for orders that come later in the day from late afternoon onwards, the speed of runners increase. The cause for this can be found out with further analysis of order volume, day of week etc*
 ##### 7. What is the successful delivery percentage for each runner?
 <img width="307" alt="image" src="https://user-images.githubusercontent.com/54994083/179551928-c16c83d7-e363-49e9-ab58-9a284bd1b11f.png">
 
+- *Runner 1 has been the most successful in terms of delivery percentage as most of his orders convert into deliveries. Whereas, runner 3 has the lowest successful delivery precentage with only 1 out of 2 of his orders getting delivered.*
 ##### :white_check_mark:Process
 ````sql
 SELECT 
@@ -349,12 +363,12 @@ FROM
     temprunner_orders
 GROUP BY runner_id;
 ````
-- *Runner 1 has been the most successful in terms of delivery percentage as most of his orders convert into deliveries. Whereas, runner 3 has the lowest successful delivery precentage with only 1 out of 2 of his orders getting delivered.*
-
+***
 The following section contains queries to solve business questions on **Ingredient Optimization.**
 ##### 1. What are the standard ingredients for each pizza ?  
 <img width="316" alt="image" src="https://user-images.githubusercontent.com/54994083/179606280-aad6ebe5-0e65-4630-b8e2-bed1efd229ae.png">
 
+-  *Cheese & Muschroom are two ingredients that are common to both Meat & Vegetarian pizzas at Danny's House.*
 ##### :white_check_mark:Process
 ````sql
 with cte1 as 
@@ -378,10 +392,11 @@ group by cte1.pizza_id;
 - The solution query for makes use of CTE as well as a subquery. The innermost query is used to convert comma separated ingredient list of toppings to long form. 
 - This is then joined with pizza_toppings to get the names of the toppings. Using the CTE, the final query joins with pizza_recipes & pizza_names to get the pizza name.
 - The GROUP_CONCAT() is used to re-group toppings into a comma separated list for each of the two pizza types. 
--  *Cheese & Muschroom are two ingredients that are common to both Meat & Vegetarian pizzas at Danny's House.*
+
 #####  2. What was the most common exclusion ?
 <img width="167" alt="image" src="https://user-images.githubusercontent.com/54994083/179616299-53262146-206c-410d-84e8-30320593fa24.png">
 
+- *Cheese seems to be the ingredient that is most commonly excluded and it is to be noted that it is one of the ingredients that is common to both pizza types. It may be a good idea for the business to include a **lactose-free** option on the menu which will make the process of ordering more straightforward.*
 ##### Process
 ````sql
 SELECT 
@@ -399,7 +414,7 @@ WHERE
     topping_name <> ''
 ORDER BY Frequency DESC;
 ````
-- *Cheese seems to be the ingredient that is most commonly excluded and it is to be noted that it is one of the ingredients that is common to both pizza types. It may be a good idea for the business to include a **lactose-free** option on the menu which will make the process of ordering more straightforward.*
+
 ##### 4. Generate an alphabetically ordered comma separated ingredient list for each pizza order from the customer_orders table and add a 2x in front of any relevant ingredients. For example: "Meat Lovers: 2xBacon, Beef, ... , Salami"
 
 <img width="368" alt="image" src="https://user-images.githubusercontent.com/54994083/179629277-68a7da09-ffe0-453f-86e9-a33ce316c0d5.png">
