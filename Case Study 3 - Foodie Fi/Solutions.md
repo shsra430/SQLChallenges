@@ -185,31 +185,8 @@ GROUP BY q.customer_id) SELECT round(AVG(days_needed),0) AS Average_Days_to_Annu
 - The `AVG` function is then used on the 'days_needed' present in the CTE `days_to_annual`
 #### 10. Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #### :white_check_mark: Process
+
+
+#### 11.How many customers downgraded from a pro monthly to a basic monthly plan in 2020?
 #### :white_check_mark: Process
