@@ -94,7 +94,7 @@ from subscriptions)query1;
 #### 6. What is the number and percentage of customer plans after their initial free trial?
 <img width="184" alt="image" src="https://user-images.githubusercontent.com/54994083/179848469-c0d52195-d3b2-487a-a15b-7750357eedad.png">
 
-- * *
+- *Most of the customers opted for the basic monhtly plan after their free trial. But this could also be because basic monthly is the plan that the system defaults to once the trial ends. *
 #### :white_check_mark: Process
 
 ````sql
@@ -118,8 +118,98 @@ WHERE s.plan_id != 0 and ranks_assigned=2
 GROUP BY s.plan_id
 ORDER BY Customer_Count desc;
 ````
+#### 7.What is the customer count and percentage breakdown of all 5 plan_name values at 2020-12-31?
+<img width="188" alt="image" src="https://user-images.githubusercontent.com/54994083/179988335-91deca99-6df9-4782-b632-fddd387bf1a1.png">
+
+- *Most of the active subscriptions are for the pro monthly plan. But, Foodie-Fi needs to work on conversion rates as **23.6% churn** seems high.*
+#### :white_check_mark: Process
+````sql
+with ranked_cte as (
+select subscriptions.customer_id,subscriptions.plan_id,subscriptions.start_date,
+plans.plan_name,rank() over(partition by subscriptions.customer_id order by subscriptions.start_date desc) as ranks
+from subscriptions left join plans
+on subscriptions.plan_id=plans.plan_id
+where start_date<='2020-12-31')
+
+SELECT 
+    plan_name, COUNT(plan_name) AS customercount,
+    concat(round((COUNT(plan_name)/(select count(distinct customer_id) from subscriptions))*100,1),"%") as share_of_subscriptions
+FROM
+    ranked_cte
+WHERE
+ranks =1
+GROUP BY plan_name
+order by customercount DESC;
+````
+- The requirement here is to extract all *active* subscriptions & get the distributions of various plans among them. This analysis also needs to be restricted to only records from the year 2020.
+- The solution query for this question uses the window function `RANK()` to extract all the active subscriptions for every customer by ranking the records per customer in the descending order of start_date.
+#### 8.How many customers have upgraded to an annual plan in 2020?
+<img width="120" alt="image" src="https://user-images.githubusercontent.com/54994083/179989486-cb7c060c-78bc-40af-ae18-74762818d2dc.png">
 
 #### :white_check_mark: Process
+````sql
+SELECT 
+    plan_name, COUNT(DISTINCT customer_id) AS customer_count
+FROM
+    subscriptions
+        LEFT JOIN
+    plans ON subscriptions.plan_id = plans.plan_id
+WHERE
+    subscriptions.plan_id = 3
+        AND start_date <= '2020-12-31';
+````
+#### 9. How many days on average does it take for a customer to an annual plan from the day they join Foodie-Fi?
+<img width="104" alt="image" src="https://user-images.githubusercontent.com/54994083/180000199-f1572afd-d0bc-40fc-9b66-576450e39841.png">
+
+-* It takes a customer an average of 3 months to subscribe to an annual plan*
 #### :white_check_mark: Process
+````sql
+WITH days_to_annual AS (SELECT 
+    q.customer_id,
+    q.start_date AS annual_start_date,
+    MIN(s.start_date) AS trial_starting_date,
+    datediff(q.start_date ,MIN(s.start_date)) AS days_needed
+FROM
+    (SELECT 
+        *
+    FROM
+        subscriptions
+    WHERE
+        plan_id = 3) q
+        LEFT JOIN
+    subscriptions s ON q.customer_id = s.customer_id
+GROUP BY q.customer_id) SELECT round(AVG(days_needed),0) AS Average_Days_to_Annual_Plan FROM days_to_annual;
+````
+- The temporary table `days_to_annual` captures the 'start_date' of trial period of all customers & the 'start_date' of all annual plan of all customers who opted for an annual plan. 
+- The `DATEDIFF` function is used to extract the difference between the start dates of the two plans in number of days as 'days_needed'.
+- The `AVG` function is then used on the 'days_needed' present in the CTE `days_to_annual`
+#### 10. Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #### :white_check_mark: Process
 #### :white_check_mark: Process
