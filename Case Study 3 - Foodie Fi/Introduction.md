@@ -77,4 +77,5 @@ The Foodie-Fi team wants you to create a new payments table for the year 2020 th
 #### A. Customer Journey
 From the sample 'subscriptions' table data, it can observed that most customers opt for the 'pro monthly' plan after a trial period.
 #### B. Data Analysis
+The section [here](avocado-foodie-fi) contains the solution queries that answer the Data Analysis Questions in part B of this challenge.
 #### C. Challenge Extension
