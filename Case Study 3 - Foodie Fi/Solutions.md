@@ -161,7 +161,7 @@ WHERE
 #### 9. How many days on average does it take for a customer to an annual plan from the day they join Foodie-Fi?
 <img width="104" alt="image" src="https://user-images.githubusercontent.com/54994083/180000199-f1572afd-d0bc-40fc-9b66-576450e39841.png">
 
--* It takes a customer an average of 3 months to subscribe to an annual plan*
+- *It takes a customer an average of 3 months to subscribe to an annual plan*
 #### :white_check_mark: Process
 ````sql
 WITH days_to_annual AS (SELECT 
@@ -184,9 +184,62 @@ GROUP BY q.customer_id) SELECT round(AVG(days_needed),0) AS Average_Days_to_Annu
 - The `DATEDIFF` function is used to extract the difference between the start dates of the two plans in number of days as 'days_needed'.
 - The `AVG` function is then used on the 'days_needed' present in the CTE `days_to_annual`
 #### 10. Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)
+<img width="159" alt="image" src="https://user-images.githubusercontent.com/54994083/180430418-bfdb5082-5d9a-4551-970b-f982c75099fc.png">
 
+- *Most customers take 1-30 days to upgrade to the annual plan with a very few of them taking more than 270 days or 9 months*
 #### :white_check_mark: Process
+````sql
+WITH days_to_annual_cte AS (SELECT 
+    q.customer_id,
+    q.start_date AS annual_start_date,
+    MIN(s.start_date) AS trial_starting_date,
+    datediff(q.start_date ,MIN(s.start_date)) AS days_needed
+FROM
+    (SELECT 
+        *
+    FROM
+        subscriptions
+    WHERE
+        plan_id = 3) q
+        LEFT JOIN
+    subscriptions s ON q.customer_id = s.customer_id
+GROUP BY q.customer_id), with_30day_bins_cte AS (SELECT *,floor(days_needed/30) AS assigned_bucket
+FROM days_to_annual_cte)SELECT CONCAT((assigned_bucket*30)+1,'-',(assigned_bucket+1)*30,'days') AS Day_period,
+COUNT(days_needed) AS Number_of_subscribers
+FROM with_30day_bins_cte
+GROUP BY assigned_bucket
+ORDER BY assigned_bucket;
+````
 
-
+- The first CTE in this query `days_to_annual_cte` captures information about the difference in the number of days between trial & annual upgrade for every customer.
+- The second CTE `with_30day_bins_cte`, for every customer, the difference in the number of days to upgrade to annual plan is assigned a bin to which it belongs. This way the 'days_needed' column is partitioned into equal interval buckets.
+- The outer query selects the 30-day buckets, and counts the number of occurrences or frequency of the number of customers that fall into each of the buckets.
 #### 11.How many customers downgraded from a pro monthly to a basic monthly plan in 2020?
+<img width="98" alt="image" src="https://user-images.githubusercontent.com/54994083/180435848-76e8a98a-49ec-45b8-a60c-1f78f26e738a.png">
+
+- There were no customers who downgraded from a pro monthly plan to a basic monthly plan in the year 2020.
 #### :white_check_mark: Process
+````sql
+SELECT 
+    COUNT(DISTINCT customer_id) as Number_of_Customers
+FROM
+    (SELECT 
+        customer_id,
+            CASE
+                WHEN plan_id = 1 AND YEAR(start_date = 2020) THEN start_date
+            END AS basic_monthly_startdate,
+            CASE
+                WHEN plan_id = 2 AND YEAR(start_date = 2020) THEN start_date
+            END AS pro_monthly_startdate
+    FROM
+        subscriptions) query2
+WHERE
+    (basic_monthly_startdate IS NOT NULL)
+        AND (pro_monthly_startdate IS NOT NULL)
+        AND (pro_monthly_startdate < basic_monthly_startdate);
+
+````
+- To get this information, I have used the concept of subqueries for better readability. 
+- The subquery aliased `query2`, the query is used to capture the start dates of basic and pro annual plans of all customers, only when the year of both start dates is equal to 2020. The `CASE WHEN` is used to pivot the table.
+- The outer query checks for those records that have a non null value in the start dates of both basic and pro monthly plans and the filter to check if pro monthly plan has a start date that is earlier than the start date of the basic monthly plan.
+- The SQL `WHERE` clause is used to enforce the above filters.
