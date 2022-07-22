@@ -205,7 +205,7 @@ FROM
     subscriptions s ON q.customer_id = s.customer_id
 GROUP BY q.customer_id), with_30day_bins_cte AS (SELECT *,floor(days_needed/30) AS assigned_bucket
 FROM days_to_annual_cte)SELECT CONCAT((assigned_bucket*30)+1,'-',(assigned_bucket+1)*30,'days') AS Day_period,
-COUNT(days_needed) AS Number_of_subscribers
+COUNT(days_needed) AS Number_of_subscribers,ceil(AVG(days_needed)) as AVG_Days_Needed
 FROM with_30day_bins_cte
 GROUP BY assigned_bucket
 ORDER BY assigned_bucket;
