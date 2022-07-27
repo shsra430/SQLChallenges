@@ -1,6 +1,9 @@
 # :bike::pizza:Pizza Runner Solution Queries:pizza::bike:
 :bulb: Built using MySQL
 
+- SQL level: Intermediate
+- Aggregations, joins, Window Functions, CTE, Sub-Queries,Pivots with CASE WHEN, COUNT CASE, DATETIME functions, Typecasting,TEXT & String Manipulation
+
 #### Data Cleaning Steps Involved
 ##### Table: customer_orders 
 1.  On inspection, it was observed that there were null and empty values in the 'extras' and 'exlcusions' columns of the 'customer_orders' table. These will be replaced with a categorical valye 'NA'.
