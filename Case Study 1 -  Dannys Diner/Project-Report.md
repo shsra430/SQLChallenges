@@ -1,6 +1,9 @@
 # Danny's Diner Solution Queries
 
 Built using **mysql**
+
+- SQL level: Intermediate
+- Aggregations, joins, Window Functions, CTE, Sub-Queries,Pivots with CASE WHEN, COUNT CASE, DATETIME functions, Typecasting,TEXT & String Manipulation
 ***
 ## What is the total amount each customer spent at the restuarant ?
 ````sql
