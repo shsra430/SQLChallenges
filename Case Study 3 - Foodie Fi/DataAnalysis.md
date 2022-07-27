@@ -3,6 +3,9 @@
 ### :bar_chart: DATA ANALYSIS 
 :bulb: This is the second part of the challenge where the following set of business questions need to be answered using SQL. The queru solutions for the questions are built using **MySQL** on MySQL Workbench 8.0.
 
+- SQL level: Intermediate
+- Aggregations, joins, Window Functions, CTE, Sub-Queries,Pivots with CASE WHEN, COUNT CASE, DATETIME functions, Typecasting,TEXT & String Manipulation
+
 ***
 #### 1. How many customers has Foodie-Fi ever had?
 <img width="74" alt="image" src="https://user-images.githubusercontent.com/54994083/179760248-3858426b-e8ad-42dd-a373-c4e5676d120d.png">
