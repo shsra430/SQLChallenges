@@ -1,6 +1,6 @@
 # Danny's Diner Solution Queries
 
-Built using **mysql**
+:bulb: Built using **mysql**
 
 - SQL level: Intermediate
 - Aggregations, joins, Window Functions, CTE, Sub-Queries,Pivots with CASE WHEN, COUNT CASE, DATETIME functions, Typecasting,TEXT & String Manipulation
